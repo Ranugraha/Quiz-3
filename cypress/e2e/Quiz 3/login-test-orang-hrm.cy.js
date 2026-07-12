@@ -2,20 +2,15 @@
 
 import LoginPage from '../../pageObjects/LoginPage';
 
-const loginData = {
-  validUser: { username: 'Admin', password: 'admin123' },
-  invalidUsername: { username: 'not_registered', password: 'admin123' },
-  invalidPassword: { username: 'Admin', password: 'wrong_password' },
-  emptyBoth: { username: '', password: '' },
-  emptyUsername: { username: '', password: 'admin123' },
-  emptyPassword: { username: 'Admin', password: '' },
-  caseSensitiveUsername: { username: 'ADMIN', password: 'admin123' },
-  sqlInjection: { username: "' OR '1'='1", password: "' OR '1'='1" }
-};
+let loginData;
 
 describe('Feature: Login OrangeHRM', () => {
   
   beforeEach(() => {
+    cy.fixture('login.Data').then((data) => {
+      loginData = data;
+    });
+
     LoginPage.visit();
     LoginPage.assertLoginPageLoaded();
   });
@@ -31,7 +26,7 @@ describe('Feature: Login OrangeHRM', () => {
   });
 
   it('TC-002: Gagal login dengan username yang tidak terdaftar', () => {
-    const { invalidUsername } = loginData;
+    const { invalidUser: invalidUsername } = loginData;
 
     LoginPage.login(invalidUsername.username, invalidUsername.password);
 
@@ -40,7 +35,7 @@ describe('Feature: Login OrangeHRM', () => {
   });
 
   it('TC-003: Gagal login dengan password yang salah', () => {
-    const { invalidPassword } = loginData;
+    const { wrongPassword: invalidPassword } = loginData;
 
     LoginPage.login(invalidPassword.username, invalidPassword.password);
 
@@ -96,7 +91,7 @@ describe('Feature: Login OrangeHRM', () => {
   });
 
   it('TC-010: Memastikan login tidak case sensitive pada username', () => {
-    const { caseSensitiveUsername } = loginData;
+    const { caseSensitive: caseSensitiveUsername } = loginData;
 
     LoginPage.login(caseSensitiveUsername.username, caseSensitiveUsername.password);
 

@@ -36,7 +36,7 @@
     "password": "' OR '1'='1"
   },
   "longUsername": {
-    "username": "A".repeat(100),
+    "username": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "password": "admin123"
   },
   "whitespaceOnly": {
