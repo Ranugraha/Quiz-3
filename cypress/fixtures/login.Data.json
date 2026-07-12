@@ -1,0 +1,50 @@
+{
+  "validUser": {
+    "username": "Admin",
+    "password": "admin123"
+  },
+  "invalidUser": {
+    "username": "InvalidUser",
+    "password": "wrongpassword"
+  },
+  "wrongPassword": {
+    "username": "Admin",
+    "password": "wrongpassword"
+  },
+  "emptyUsername": {
+    "username": "",
+    "password": "admin123"
+  },
+  "emptyPassword": {
+    "username": "Admin",
+    "password": ""
+  },
+  "emptyBoth": {
+    "username": "",
+    "password": ""
+  },
+  "caseSensitive": {
+    "username": "admin",
+    "password": "admin123"
+  },
+  "specialChars": {
+    "username": "Admin@#$%",
+    "password": "admin123!@#"
+  },
+  "sqlInjection": {
+    "username": "' OR '1'='1",
+    "password": "' OR '1'='1"
+  },
+  "longUsername": {
+    "username": "A".repeat(100),
+    "password": "admin123"
+  },
+  "whitespaceOnly": {
+    "username": "   ",
+    "password": "   "
+  },
+  "validUsernameWrongPassword": {
+    "username": "Admin",
+    "password": "Admin123"
+  }
+}

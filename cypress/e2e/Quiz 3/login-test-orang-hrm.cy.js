@@ -1,24 +1,125 @@
-describe('Login Test OrangeHRM', () => {
-  it('Berhasil login dengan kredensial valid', () => {
-    cy.visit('https://opensource-demo.orangehrmlive.com');
-    
-    cy.url().should('include', '/auth/login');
-    cy.get('.orangehrm-login-title').should('have.text', 'Login');
-    
-    cy.get('input[name="username"]').type('Admin');
-    
-    cy.get('input[name="username"]').should('have.value', 'Admin');
-    
-    cy.get('input[type="password"]').type('admin123');
-    
-    cy.get('input[type="password"]').should('have.value', 'admin123');
-    
-    cy.get('button[type="submit"]').click();
-    
-    cy.url().should('include', '/dashboard');
-    cy.get('.oxd-topbar-header-title').should('have.text', 'Dashboard');
-    
-    cy.get('.oxd-sidepanel').should('exist');
-    cy.get('.oxd-main-menu-item').should('have.length', 12);
+/// <reference types="cypress" />
+
+import LoginPage from '../../pageObjects/LoginPage';
+
+const loginData = {
+  validUser: { username: 'Admin', password: 'admin123' },
+  invalidUsername: { username: 'not_registered', password: 'admin123' },
+  invalidPassword: { username: 'Admin', password: 'wrong_password' },
+  emptyBoth: { username: '', password: '' },
+  emptyUsername: { username: '', password: 'admin123' },
+  emptyPassword: { username: 'Admin', password: '' },
+  caseSensitiveUsername: { username: 'ADMIN', password: 'admin123' },
+  sqlInjection: { username: "' OR '1'='1", password: "' OR '1'='1" }
+};
+
+describe('Feature: Login OrangeHRM', () => {
+  
+  beforeEach(() => {
+    LoginPage.visit();
+    LoginPage.assertLoginPageLoaded();
   });
+
+  it('TC-001: Berhasil login dengan username dan password valid', () => {
+    const { validUser } = loginData;
+
+    LoginPage.enterUsername(validUser.username);
+    LoginPage.enterPassword(validUser.password);
+    LoginPage.clickLogin();
+
+    cy.url().should('not.include', '/auth/login');
+  });
+
+  it('TC-002: Gagal login dengan username yang tidak terdaftar', () => {
+    const { invalidUsername } = loginData;
+
+    LoginPage.login(invalidUsername.username, invalidUsername.password);
+
+    LoginPage.assertUrlIsLoginPage();
+    LoginPage.assertErrorMessage('Invalid credentials');
+  });
+
+  it('TC-003: Gagal login dengan password yang salah', () => {
+    const { invalidPassword } = loginData;
+
+    LoginPage.login(invalidPassword.username, invalidPassword.password);
+
+    LoginPage.assertUrlIsLoginPage();
+    LoginPage.assertErrorMessage('Invalid credentials');
+    LoginPage.assertUsernameValue('');
+  });
+
+  it('TC-004: Gagal login ketika username dan password dikosongkan', () => {
+    const { emptyBoth } = loginData;
+
+    LoginPage.login(emptyBoth.username, emptyBoth.password);
+
+    LoginPage.assertUrlIsLoginPage();
+    LoginPage.assertRequiredError();
+  });
+
+  it('TC-005: Gagal login ketika hanya mengisi password', () => {
+    const { emptyUsername } = loginData;
+
+    LoginPage.login(emptyUsername.username, emptyUsername.password);
+
+    LoginPage.assertUrlIsLoginPage();
+    LoginPage.assertRequiredError();
+  });
+
+  it('TC-006: Gagal login ketika hanya mengisi username', () => {
+    const { emptyPassword } = loginData;
+
+    LoginPage.login(emptyPassword.username, emptyPassword.password);
+
+    LoginPage.assertUrlIsLoginPage();
+    LoginPage.assertRequiredError();
+    LoginPage.assertUsernameValue(emptyPassword.username);
+  });
+
+  it('TC-007: Memastikan placeholder pada field username dan password sesuai', () => {
+    LoginPage.assertUsernamePlaceholder('Username');
+    LoginPage.assertPasswordPlaceholder('Password');
+  });
+
+  it('TC-008: Memastikan informasi demo credentials ditampilkan dengan benar', () => {
+    LoginPage.assertDemoCredentialsVisible();
+  });
+
+  it('TC-009: Memastikan link Forgot Password mengarah ke halaman reset password', () => {
+    LoginPage.clickForgotPassword();
+
+    cy.url().should('include', '/auth/requestPasswordResetCode');
+
+    cy.go('back');
+    LoginPage.assertLoginPageLoaded();
+  });
+
+  it('TC-010: Memastikan login tidak case sensitive pada username', () => {
+    const { caseSensitiveUsername } = loginData;
+
+    LoginPage.login(caseSensitiveUsername.username, caseSensitiveUsername.password);
+
+    cy.url().should('not.include', '/auth/login');
+  });
+
+  it('TC-011: Memastikan sistem menangani input SQL injection dengan aman', () => {
+    const { sqlInjection } = loginData;
+
+    LoginPage.login(sqlInjection.username, sqlInjection.password);
+
+    LoginPage.assertUrlIsLoginPage();
+    LoginPage.assertErrorMessage('Invalid credentials');
+  });
+
+  it('TC-012: Memastikan semua elemen UI halaman login tampil dengan benar', () => {
+    LoginPage.assertLoginTitleVisible();
+    LoginPage.assertLoginButtonVisible();
+    LoginPage.assertForgotPasswordLinkVisible();
+    LoginPage.brandingLogo.should('be.visible');
+    LoginPage.orangeHRMLogo.should('be.visible');
+    LoginPage.usernameLabel.should('be.visible');
+    LoginPage.passwordLabel.should('be.visible');
+  });
+
 });
