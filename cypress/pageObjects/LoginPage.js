@@ -116,6 +116,10 @@ class LoginPage {
     cy.url().should('include', '/auth/login');
   }
 
+  assertDashboardLoaded() {
+    cy.location('pathname').should('include', '/dashboard');
+  }
+
   assertUsernameValue(expectedValue) {
     this.usernameInput.should('have.value', expectedValue);
   }
